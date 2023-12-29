@@ -5,14 +5,15 @@ import PrioritySelect from '../../DropDown/Priority/PrioritySelect';
 import LabelSelect from '../../DropDown/Lables/LablesSelect';
 import { gql, useMutation } from '@apollo/client';
 import { toast } from 'react-toastify';
+import { useAuth } from '../../../context/auth';
 
-const EDIT_TASK_BY_ID = gql`mutation MyMutation($id: Int!, $desc: String, $due_date: date, $due_time: time, $priority_id: Int, $task_name: String!,  $labels_id: _int4) {
+const EDIT_TASK_BY_ID = gql`mutation MyMutation($id: Int!, $desc: String, $due_date: date, $due_time: time, $priority_id: Int, $task_name: String!,  $labels_id: [Int!] ) {
     update_task_by_pk(pk_columns: {id: $id}, _set: {description: $desc, due_date: $due_date, due_time: $due_time, priority_id: $priority_id, task_name: $task_name, labels_id: $labels_id}) {
       task_name
     }
   }
 `
-const ADD_TASK = gql`mutation MyMutation($desc: String, $due_date: date, $due_time: time, $task_name: String, $priority_id: Int, $labels_id: _int4, $user_id: Int!) {
+const ADD_TASK = gql`mutation MyMutation($desc: String, $due_date: date, $due_time: time, $task_name: String, $priority_id: Int, $labels_id: [Int!], $user_id: Int!) {
     insert_task_one(object: {description: $desc, due_date: $due_date, due_time: $due_time, task_name: $task_name, priority_id: $priority_id, user_id: $user_id, labels_id: $labels_id}) {
       task_name
       id
@@ -26,6 +27,7 @@ function parseArrayToInt4(arr: Array<number>):string {
 
 function TaskEditor(props: any) {
 
+    const {userId} = useAuth()
     const [newId, setNewId] = useState<number>(0)
     const [title, setTitle] = useState<string>(props.task.task_name)
     const [desc, setDesc] = useState<string>(props.task.description)
@@ -63,7 +65,7 @@ function TaskEditor(props: any) {
             due_date: due_date,
             due_time: due_time,
             priority_id: priorityId,
-            user_id: 2
+            user_id: userId
         }
     })
     function AddTask() {
